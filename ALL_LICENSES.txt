@@ -1,0 +1,55 @@
+
+==================================================
+PROJECT ENVIRONMENT & SYSTEM INFO
+==================================================
+Operating System: Windows 11 / macOS / Linux (בחרי את המערכת שלך)
+Programming Language & Runtime: Node.js (v18+ / v20+), JavaScript (ES6+)
+Frameworks: Express.js, React (Vite)
+
+==================================================
+THIRD PARTY LIBRARIES & LICENSES
+==================================================
+
+1. express
+   - License: MIT
+   - Description: Fast, unopinionated, minimalist web framework for Node.js.
+
+2. mongoose
+   - License: MIT
+   - Description: MongoDB object modeling tool designed to work in an asynchronous environment.
+
+3. jsonwebtoken
+   - License: MIT
+   - Description: An implementation of JSON Web Tokens.
+
+4. bcrypt / bcryptjs
+   - License: MIT
+   - Description: Library to help you hash passwords.
+
+5. axios
+   - License: MIT
+   - Description: Promise based HTTP client for the browser and node.js.
+
+6. winston
+   - License: MIT
+   - Description: A logger for just about everything in Node.js.
+
+7. morgan
+   - License: MIT
+   - Description: HTTP request logger middleware for Node.js.
+
+8. dotenv
+   - License: BSD-2-Clause
+   - Description: Loads environment variables from .env file.
+
+9. cors
+   - License: MIT
+   - Description: Middleware for enabling CORS in Express apps.
+
+   ==================================================
+DEVELOPMENT DEPENDENCIES (DEV LIBRARIES)
+==================================================
+
+10. concurrently
+    - License: MIT
+    - Description: Run multiple npm-scripts concurrently. Used to run both the main server and the cards server simultaneously during development.

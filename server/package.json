@@ -1,0 +1,41 @@
+{
+  "name": "my-server",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "cards": "node cardServer.js",
+    "start:main": "node server.js",
+    "start:cards": "node cardServer.js",
+    "dev": "concurrently \"npm run start:main\" \"npm run start:cards\"",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:coverage": "jest --coverage --detectOpenHandles --forceExit"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.1",
+    "mongoose-sequence": "^6.0.1",
+    "morgan": "^1.11.0",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4",
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  }
+}
