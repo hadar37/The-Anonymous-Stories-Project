@@ -1,3 +1,4 @@
+
 {
   "name": "my-server",
   "version": "1.0.0",
@@ -27,16 +28,8 @@
     "mongodb-memory-server": "^11.2.0",
     "supertest": "^7.2.2"
   },
- "jest": {
+  "jest": {
     "testEnvironment": "node",
-    "collectCoverageFrom": [
-      "auth.js",
-      "authAdmin.js",
-      "stories.js",
-      "models/**/*.js",
-      "!**/node_modules/**",
-      "!**/coverage/**"
-    ],
     "coverageThreshold": {
       "global": {
         "branches": 70,

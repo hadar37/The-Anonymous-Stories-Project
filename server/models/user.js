@@ -4,11 +4,19 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, 'נא להזין שם'],
-      trim: true
+   name: {
+  type: String,
+  required: [true, 'נא להזין שם'],
+  trim: true,
+  minLength: [2, 'שם חייב להכיל לפחות 2 תווים'],
+  validate: {
+    validator: function (v) {
+      // מאפשר אותיות בעברית ובאנגלית, רווחים, מקף וגרש בלבד (ללא מספרים או סימנים מיוחדים)
+      return /^[\u0590-\u05FFa-zA-Z\s'-]+$/.test(v);
     },
+    message: 'שם יכול להכיל אותיות בלבד'
+  }
+},
     email: {
       type: String,
       required: true,
@@ -53,6 +61,5 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
-
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 module.exports = User;

@@ -25,4 +25,5 @@ const storySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Story', storySchema);
+const Story = mongoose.models.Story || mongoose.model('Story', storySchema);
+module.exports = Story;
