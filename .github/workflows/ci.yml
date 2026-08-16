@@ -12,6 +12,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,4 +40,4 @@ jobs:
           CI: true
           PORT: 5000
           JWT_SECRET: test_secret_key_for_ci
-          MONGO_URI: mongodb://127.0.0.1:27017/test_db
+          MONGO_URI: mongodb://localhost:27017/test_db
