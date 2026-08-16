@@ -26,10 +26,10 @@ jobs:
           npm install
 
       - name: Run tests
+        run: |
+          cd server
+          npm test -- --detectOpenHandles --forceExit
         env:
           CI: true
           PORT: 5000
           JWT_SECRET: test_secret_key_for_ci
-        run: |
-          cd server
-          npm test

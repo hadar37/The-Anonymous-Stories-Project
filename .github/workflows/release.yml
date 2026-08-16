@@ -29,6 +29,5 @@ jobs:
         uses: cycjimmy/semantic-release-action@v4
         with:
           working_directory: ./server
-          npm_publish: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
