@@ -3,9 +3,9 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const app = require('../server'); // ודאו שהנתיב תואם למיקום server.js
-const User = require('../models/User'); // ודאו שהנתיב תואם למודל המשתמש
-const Story = require('../models/Story'); // ודאו שהנתיב תואם למודל הסיפורים
+const app = require('../../server');
+const User = require('../../models/User');
+const Story = require('../../models/Story');
 
 let mongoServer;
 let user1Token, user1Id;
