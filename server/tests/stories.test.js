@@ -3,9 +3,9 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const app = require('./server'); // ודאו שהנתיב תואם למיקום server.js
-const User = require('./User'); // ודאו שהנתיב תואם למודל המשתמש
-const Story = require('./models/story'); // ודאו שהנתיב תואם למודל הסיפורים
+const app = require('../server'); // ודאו שהנתיב תואם למיקום server.js
+const User = require('../models/User'); // ודאו שהנתיב תואם למודל המשתמש
+const Story = require('../models/Story'); // ודאו שהנתיב תואם למודל הסיפורים
 
 let mongoServer;
 let user1Token, user1Id;
@@ -28,7 +28,8 @@ beforeAll(async () => {
     });
   
   user1Token = user1Res.body.token;
-  user1Id = user1Res.body.user._id;
+  // תמיכה בכל מבנה תשובה אפשרי מה-API:
+  user1Id = user1Res.body.user?._id || user1Res.body.user?.id || user1Res.body._id || user1Res.body.id;
 
   // 3. יצירת משתמש שני (לערעור הרשאות)
   const user2Res = await request(app)
@@ -40,8 +41,9 @@ beforeAll(async () => {
     });
 
   user2Token = user2Res.body.token;
-  user2Id = user2Res.body.user._id;
+  user2Id = user2Res.body.user?._id || user2Res.body.user?.id || user2Res.body._id || user2Res.body.id;
 });
+
 
 afterAll(async () => {
   // ניקוי וסגירת החיבור ל-DB הווירטואלי

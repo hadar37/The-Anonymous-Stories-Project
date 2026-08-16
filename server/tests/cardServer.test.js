@@ -1,7 +1,7 @@
 
 
 const request = require('supertest');
-const app = require('./cardServer');
+const app = require('../cardServer');
 
 describe('CardServer API Endpoints', () => {
 

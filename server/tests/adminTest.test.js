@@ -1,0 +1,234 @@
+
+
+const request = require('supertest');
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const authAdminRouter = require('../authAdmin');
+const User = require('../models/user');
+const Story = require('../models/story');
+
+// הקמת אפליקציית Express לצורך הבדיקות
+const app = express();
+app.use(express.json());
+app.use('/api/admin', authAdminRouter);
+
+let mongoServer;
+
+describe('Admin API Endpoints Coverage Tests', () => {
+  let adminToken;
+  let adminId;
+  let regularUserId;
+  let storyId;
+
+  // 1. הגדרת מסד נתונים זמני ב-RAM לפני תחילת הבדיקות
+  beforeAll(async () => {
+    process.env.JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
+
+    await mongoose.disconnect(); // ניתוק חיבורים קיימים למסד הנתונים האמיתי
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri);
+  });
+
+  // 2. ניקוי המסד הזמני והכנת נתוני בדיקה
+  beforeEach(async () => {
+    await User.deleteMany({});
+    await Story.deleteMany({});
+
+    // יצירת משתמש אדמין קיים לשימוש בבדיקות
+    const admin = new User({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: 'Password123!',
+      role: 'admin'
+    });
+    await admin.save();
+    adminId = admin._id.toString();
+
+    // הנפקת טוקן עבור אדמין
+    adminToken = jwt.sign({ id: admin._id, role: admin.role }, process.env.JWT_SECRET);
+
+    // יצירת משתמש רגיל לבדיקות מחיקה
+    const regularUser = new User({
+      name: 'Regular User',
+      email: 'user@example.com',
+      password: 'Password123!',
+      role: 'user'
+    });
+    await regularUser.save();
+    regularUserId = regularUser._id.toString();
+
+    // יצירת סיפור לבדיקת מחיקה
+    const story = new Story({
+      title: 'Test Story',
+      content: 'This is a test story content for admin deletion.',
+      author: regularUserId
+    });
+    await story.save();
+    storyId = story._id.toString();
+  });
+
+  // 3. סגירת המסד הזמני בסיום כל הבדיקות
+  afterAll(async () => {
+    await mongoose.disconnect();
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
+  });
+
+  // ==========================================
+  // 1. בדיקות הרשמת אדמין (POST /api/admin/register)
+  // ==========================================
+  describe('POST /api/admin/register', () => {
+    it('should register a new admin successfully', async () => {
+      const res = await request(app)
+        .post('/api/admin/register')
+        .send({
+          name: 'New Admin',
+          email: 'newadmin@example.com',
+          password: 'Password123!'
+        });
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.message).toEqual('משתמש אדמין נוצר בהצלחה');
+      expect(res.body.user).toHaveProperty('role', 'admin');
+    });
+
+    it('should return 400 if admin email already exists', async () => {
+      const res = await request(app)
+        .post('/api/admin/register')
+        .send({
+          name: 'Duplicate Admin',
+          email: 'admin@example.com', // כבר קיים ב-beforeEach
+          password: 'Password123!'
+        });
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.message).toEqual('משתמש עם אימייל זה כבר קיים');
+    });
+  });
+
+  // ==========================================
+  // 2. בדיקות התחברות אדמין (POST /api/admin/login)
+  // ==========================================
+  describe('POST /api/admin/login', () => {
+    it('should login admin successfully and return a token', async () => {
+      const res = await request(app)
+        .post('/api/admin/login')
+        .send({
+          email: 'admin@example.com',
+          password: 'Password123!'
+        });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('token');
+      expect(res.body.user.email).toEqual('admin@example.com');
+    });
+
+    it('should return 400 if email or password are missing', async () => {
+      const res = await request(app)
+        .post('/api/admin/login')
+        .send({ email: 'admin@example.com' });
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.message).toEqual('נא להזין אימייל וסיסמה');
+    });
+
+    it('should return 401 if user is not an admin', async () => {
+      const res = await request(app)
+        .post('/api/admin/login')
+        .send({
+          email: 'user@example.com', // משתמש רגיל
+          password: 'Password123!'
+        });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual('פרטי התחברות שגויים או שאינך מנהל מערכת');
+    });
+
+    it('should return 401 for wrong password', async () => {
+      const res = await request(app)
+        .post('/api/admin/login')
+        .send({
+          email: 'admin@example.com',
+          password: 'WrongPassword123!'
+        });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual('פרטי התחברות שגויים');
+    });
+  });
+
+  // ==========================================
+  // 3. בדיקות מחיקת משתמש (DELETE /api/admin/users/:id)
+  // ==========================================
+  describe('DELETE /api/admin/users/:id', () => {
+    it('should allow admin to delete a user and their stories', async () => {
+      const res = await request(app)
+        .delete(`/api/admin/users/${regularUserId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.message).toEqual('המשתמש והסיפורים השייכים לו נמחקו בהצלחה');
+
+      // אימות שהמשתמש אכן נמחק מהמסד הזמני
+    const deletedUser = await User.findById(regularUserId);
+    expect(deletedUser).toBeNull(); 
+    });
+
+    it('should return 401 if no auth token provided', async () => {
+      const res = await request(app)
+        .delete(`/api/admin/users/${regularUserId}`);
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.message).toEqual('גישה נדחתה. חסר טוקן אימות');
+    });
+
+    it('should return 403 if user is not an admin', async () => {
+      // טוקן של משתמש רגיל
+      const userToken = jwt.sign({ id: regularUserId, role: 'user' }, process.env.JWT_SECRET);
+
+      const res = await request(app)
+        .delete(`/api/admin/users/${regularUserId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.statusCode).toEqual(403);
+    });
+
+    it('should return 404 if user to delete does not exist', async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      const res = await request(app)
+        .delete(`/api/admin/users/${fakeId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body.message).toEqual('משתמש לא נמצא');
+    });
+  });
+
+  // ==========================================
+  // 4. בדיקות מחיקת סיפור (DELETE /api/admin/stories/:id)
+  // ==========================================
+  describe('DELETE /api/admin/stories/:id', () => {
+    it('should allow admin to delete any story', async () => {
+      const res = await request(app)
+        .delete(`/api/admin/stories/${storyId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.message).toEqual('הסיפור נמחק בהצלחה על ידי המנהל');
+    });
+
+    it('should return 404 if story to delete does not exist', async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      const res = await request(app)
+        .delete(`/api/admin/stories/${fakeId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body.message).toEqual('סיפור לא נמצא');
+    });
+  });
+});
