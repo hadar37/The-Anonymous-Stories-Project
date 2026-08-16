@@ -1,4 +1,5 @@
 
+
 name: Release Pipeline
 
 on:
@@ -28,7 +29,6 @@ jobs:
         uses: cycjimmy/semantic-release-action@v4
         with:
           working_directory: ./server
-          extra_plugins: |
-            @semantic-release/git
+          npm_publish: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
