@@ -1,5 +1,4 @@
 
-
 name: Release Pipeline
 
 on:
@@ -23,9 +22,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Create Semantic Release & GitHub Release
         uses: cycjimmy/semantic-release-action@v4
+        with:
+          working_directory: ./server
+          extra_plugins: |
+            @semantic-release/git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
