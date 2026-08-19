@@ -16,3 +16,6 @@ logs/
 # Build folders
 dist/
 build/
+
+coverage/
+server/coverage/
