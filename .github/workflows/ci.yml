@@ -1,4 +1,5 @@
 
+
 name: CI/CD Pipeline
 
 on:
@@ -8,17 +9,11 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write # הרשאה ליצירת Releases ו-Tags
+  contents: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      mongodb:
-        image: mongo:latest
-        ports:
-          - 27017:27017
 
     steps:
       - name: Checkout repository
@@ -27,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Install dependencies
         run: |
@@ -37,35 +32,8 @@ jobs:
       - name: Run tests
         run: |
           cd server
-          npm test -- --detectOpenHandles --forceExit
+          npm test
         env:
           CI: true
           PORT: 5000
           JWT_SECRET: test_secret_key_for_ci
-          MONGO_URI: mongodb://localhost:27017/test_db
-
-  release:
-    needs: test # ירוץ רק אם ה-job של ה-test עבר בהצלחה!
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Create Semantic Release
-        uses: cycjimmy/semantic-release-action@v4
-        with:
-          extra_plugins: |
-            @semantic-release/commit-analyzer
-            @semantic-release/release-notes-generator
-            @semantic-release/github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
