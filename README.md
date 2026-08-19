@@ -2,6 +2,8 @@
 
 # The Anonymous Stories Project 📖
 
+[![CI/CD Pipeline](https://github.com/YourUsername/The-Anonymous-Stories-Project/actions/workflows/ci.yml/badge.svg)](https://github.com/YourUsername/The-Anonymous-Stories-Project/actions/workflows/ci.yml)
+
 An anonymous story-sharing backend application built with **Node.js**, **Express**, and **MongoDB**. The system provides RESTful APIs for user authentication, anonymous story publishing, and an admin panel for platform moderation.
 
 ---
