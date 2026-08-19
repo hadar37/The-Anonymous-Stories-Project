@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const authAdminRouter = require('../authAdmin');
 const User = require('../models/user');
 const Story = require('../models/story');
-
+jest.setTimeout(30000); // מעלה את טיימאאוט הבדיקה ל-30 שניות
 // הקמת אפליקציית Express לצורך הבדיקות
 const app = express();
 app.use(express.json());

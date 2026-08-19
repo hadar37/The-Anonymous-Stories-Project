@@ -89,7 +89,3 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-// הפעלת השרת
-app.listen(PORT, () => {
-  console.log(`🎴 שרת קלפי ההשראה פועל בהצלחה על פורט ${PORT}`);
-});
