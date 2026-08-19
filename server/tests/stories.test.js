@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const app = require('../server');
 const User = require('../models/user');
-const Story = require('../models/Story');
+const Story = require('../models/story');
 
 let mongoServer;
 let user1Token, user1Id;
