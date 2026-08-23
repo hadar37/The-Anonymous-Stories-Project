@@ -2,7 +2,7 @@
 
 # The Anonymous Stories Project 📖
 
-[![CI/CD Pipeline](https://github.com/YourUsername/The-Anonymous-Stories-Project/actions/workflows/ci.yml/badge.svg)](https://github.com/YourUsername/The-Anonymous-Stories-Project/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/hadar37/The-Anonymous-Stories-Project/actions/workflows/ci.yml/badge.svg)](https://github.com/hadar37/The-Anonymous-Stories-Project/actions/workflows/ci.yml)
 
 An anonymous story-sharing backend application built with **Node.js**, **Express**, and **MongoDB**. The system provides RESTful APIs for user authentication, anonymous story publishing, and an admin panel for platform moderation.
 
@@ -42,5 +42,5 @@ Ensure you have the following installed on your machine:
 
 1. **Clone the Repository:**
    ```bash
-   git clone [https://github.com/YourUsername/The-Anonymous-Stories-Project.git](https://github.com/YourUsername/The-Anonymous-Stories-Project.git)
+   git clone [https://github.com/hadar37/The-Anonymous-Stories-Project.git](https://github.com/hadar37/The-Anonymous-Stories-Project.git)
    cd The-Anonymous-Stories-Project/server
