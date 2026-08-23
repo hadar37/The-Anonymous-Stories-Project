@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import PersonalArea from './pages/PersonalArea';
 import SuccessStories from './pages/SuccessStories';
 import CardsPage from './pages/CardsPage';
+import About from './pages/About';
 
 function MainApp() {
   const { user } = useContext(AuthContext);
@@ -27,6 +28,7 @@ function MainApp() {
         {currentPage === 'personal' && <PersonalArea />}
         {currentPage === 'success' && <SuccessStories />}
         {currentPage === 'cards' && <CardsPage />}
+        { currentPage === 'about' && <About/>}
       </main>
     </div>
   );

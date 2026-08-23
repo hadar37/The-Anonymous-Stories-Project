@@ -22,6 +22,9 @@ export default function Navbar({ setCurrentPage }) {
         <button style={styles.btnHighlight} onClick={() => setCurrentPage('cards')}>
           🎴 קלפי השראה ומוטיבציה
         </button>
+        <button button style={styles.btn} onClick={() => setCurrentPage('about')} >אודות
+          
+        </button>
       </div>
 
       <div>
