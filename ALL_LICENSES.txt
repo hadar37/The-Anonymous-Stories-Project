@@ -1,10 +1,4 @@
 
-==================================================
-PROJECT ENVIRONMENT & SYSTEM INFO
-==================================================
-Operating System: Windows 11 / macOS / Linux (בחרי את המערכת שלך)
-Programming Language & Runtime: Node.js (v18+ / v20+), JavaScript (ES6+)
-Frameworks: Express.js, React (Vite)
 
 ==================================================
 THIRD PARTY LIBRARIES & LICENSES
@@ -22,7 +16,7 @@ THIRD PARTY LIBRARIES & LICENSES
    - License: MIT
    - Description: An implementation of JSON Web Tokens.
 
-4. bcrypt / bcryptjs
+4. bcrypt
    - License: MIT
    - Description: Library to help you hash passwords.
 
@@ -46,10 +40,22 @@ THIRD PARTY LIBRARIES & LICENSES
    - License: MIT
    - Description: Middleware for enabling CORS in Express apps.
 
-   ==================================================
-DEVELOPMENT DEPENDENCIES (DEV LIBRARIES)
+==================================================
+DEVELOPMENT DEPENDENCIES
 ==================================================
 
 10. concurrently
     - License: MIT
-    - Description: Run multiple npm-scripts concurrently. Used to run both the main server and the cards server simultaneously during development.
+    - Description: Run multiple npm-scripts concurrently.
+
+11. jest
+    - License: MIT
+    - Description: JavaScript Testing Framework.
+
+12. supertest
+    - License: MIT
+    - Description: High-level abstraction for testing HTTP.
+
+13. mongodb-memory-server
+    - License: MIT
+    - Description: In-memory MongoDB Server for testing.
