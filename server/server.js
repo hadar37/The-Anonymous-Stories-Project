@@ -14,13 +14,10 @@ const adminRoutes = require('./authAdmin');
 
 
 const app = express();
+
+// --- 1. Middleware (חובה בראש הקובץ!) ---
+app.use(cors()); // מאפשר ל-React לתקשר עם השרת מכל נתיב
 app.use(express.json()); // לפענוח JSON
-
-// Middleware
-
-app.use('/api/admin', adminRoutes);
-
-app.use(cors()); // מאפשר ל-React לתקשר עם השרת
 
 app.use(morgan('combined', {
   stream: {
@@ -28,11 +25,9 @@ app.use(morgan('combined', {
   }
 }));
 
-// 1. נתיבים פתוחים (התחברות והרשמה)
+// --- 2. הנתיבים (Routes) ---
+app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
-
-
-// 2. נתיבים מוגנים (למשל סיפורים)
 app.use('/api/stories', storyRoutes);
 
 // נתיב בסיסי לבדיקת תקינות

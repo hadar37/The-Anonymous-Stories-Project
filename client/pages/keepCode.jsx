@@ -1,17 +1,13 @@
 
 
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext'; // 👈 וידוא נתיב תקין ל-AuthContext
+
+
+import { useState, useEffect } from 'react';
 
 export default function HomePage({ setCurrentPage }) {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
-  // 👈 שליפת מידע על המשתמש המחובר
-  const { user } = useContext(AuthContext);
-
-  console.log('המשתמש הנוכחי ב-HomePage:', user);
 
   useEffect(() => {
     fetchStories();
@@ -30,29 +26,6 @@ export default function HomePage({ setCurrentPage }) {
       setError(err.message);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // 👈 פונקציית מחיקה למנהל
-  const handleDelete = async (storyId) => {
-    if (!window.confirm('האם את/ה בטוח/ה שברצונך למחוק סיפור זה?')) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/stories/${storyId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'נכשל במחיקת הסיפור');
-
-      // עדכון ה-State והסרת הסיפור מהמסך
-      setStories((prevStories) => prevStories.filter((s) => s._id !== storyId));
-    } catch (err) {
-      alert(`שגיאה במחיקה: ${err.message}`);
     }
   };
 
@@ -95,34 +68,22 @@ export default function HomePage({ setCurrentPage }) {
           <div style={styles.storiesGrid}>
             {stories.map((story) => (
               <div key={story._id} style={styles.storyCard}>
-                <div>
-                  <div style={styles.cardHeader}>
-                    <span style={styles.authorName}>
-                      👤 {story.author?.name || 'כותב/ת אנונימי/ת'}
-                    </span>
-                    {story.isSuccessStory && (
-                      <span style={styles.badge}>🌟 סיפור הצלחה</span>
-                    )}
-                  </div>
-
-                  <h3 style={styles.storyTitle}>{story.title}</h3>
-                  <p style={styles.storyContent}>{story.content}</p>
+                <div style={styles.cardHeader}>
+                  <span style={styles.authorName}>
+                    👤 {story.author?.name || 'כותב/ת אנונימי/ת'}
+                  </span>
+                  {story.isSuccessStory && (
+                    <span style={styles.badge}>🌟 סיפור הצלחה</span>
+                  )}
                 </div>
+
+                <h3 style={styles.storyTitle}>{story.title}</h3>
+                <p style={styles.storyContent}>{story.content}</p>
 
                 <div style={styles.cardFooter}>
                   <span style={styles.dateText}>
                     {new Date(story.createdAt || Date.now()).toLocaleDateString('he-IL')}
                   </span>
-
-                  {/* 👈 כפתור מחיקה שיופיע רק למנהל מערכת (Admin) */}
-                  {user?.role === 'admin' && (
-                    <button 
-                      onClick={() => handleDelete(story._id)} 
-                      style={styles.deleteBtn}
-                    >
-                      🗑️ מחק
-                    </button>
-                  )}
                 </div>
               </div>
             ))}
@@ -247,23 +208,11 @@ const styles = {
   cardFooter: {
     borderTop: '1px dashed #eee',
     paddingTop: '10px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+    textAlign: 'left'
   },
   dateText: {
     fontSize: '12px',
     color: '#a0aec0'
-  },
-  deleteBtn: {
-    background: '#e63946',
-    color: '#fff',
-    border: 'none',
-    padding: '6px 12px',
-    borderRadius: '6px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    cursor: 'pointer'
   },
   loadingText: {
     textAlign: 'center',
