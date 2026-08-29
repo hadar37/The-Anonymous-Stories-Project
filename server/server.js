@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 const logger = require('./logger');
+if (!global.crypto) {
+  global.crypto = require('crypto');
+}
 
 // ייבוא הנתיבים
 const storyRoutes = require('./stories');

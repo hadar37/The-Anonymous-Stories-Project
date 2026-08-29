@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">76.4% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>66/88</span>
+                <span class='fraction'>68/89</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">71.42% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/7</span>
+                <span class='fraction'>6/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">76.4% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>66/88</span>
+                <span class='fraction'>68/89</span>
             </div>
         
             
@@ -295,7 +295,15 @@
 <a name='L230'></a><a href='#L230'>230</a>
 <a name='L231'></a><a href='#L231'>231</a>
 <a name='L232'></a><a href='#L232'>232</a>
-<a name='L233'></a><a href='#L233'>233</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -314,7 +322,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -389,17 +397,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -411,6 +419,15 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -472,7 +489,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -545,8 +561,8 @@ const logger = require('./logger');
 // ==========================================
 // 1. פונקציית עזר ליצירת JWT Token
 // ==========================================
-const generateToken = <span class="fstat-no" title="function not covered" >(i</span>d) =&gt; {
-<span class="cstat-no" title="statement not covered" >  return jwt.sign({ id }, process.env.JWT_SECRET, {</span>
+const generateToken = (id) =&gt; {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d' // התוקף של הטוקן (למשל: 30 יום)
   });
 };
@@ -621,17 +637,17 @@ const protect = <span class="fstat-no" title="function not covered" >as</span>yn
 // 1. ראוט ליצירת משתמש אדמין חדש
 // POST /api/admin/register
 // ==========================================
+// POST /api/admin/register
+// POST /api/admin/register
 router.post('/register', async (req, res) =&gt; {
   try {
     const { name, email, password } = req.body;
 &nbsp;
-    // בדיקה אם המשתמש כבר קיים
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'משתמש עם אימייל זה כבר קיים' });
     }
 &nbsp;
-    // יצירת משתמש מנהל חדש מפורשות עם role: 'admin'
     const adminUser = new User({
       name,
       email,
@@ -642,10 +658,19 @@ router.post('/register', async (req, res) =&gt; {
     await adminUser.save();
     logger.info(`נוצר אדמין חדש בהצלחה: ${email}`);
 &nbsp;
+    const token = generateToken(adminUser._id);
+&nbsp;
+    // מחזירים תשובה המשלבת את המבנה המקורי עבור הטסטים + השדות הנדרשים ל-Frontend
     res.status(201).json({
       message: 'משתמש אדמין נוצר בהצלחה',
+      token,
+      _id: adminUser._id,
+      name: adminUser.name,
+      email: adminUser.email,
+      role: adminUser.role,
       user: {
         id: adminUser._id,
+        _id: adminUser._id,
         name: adminUser.name,
         email: adminUser.email,
         role: adminUser.role
@@ -658,9 +683,9 @@ router.post('/register', async (req, res) =&gt; {
 });
 &nbsp;
 &nbsp;
-&nbsp;
 // 2. ראוט להתחברות אדמין (Login)
 // POST /api/admin/login
+// ==========================================
 // ==========================================
 router.post('/login', async (req, res) =&gt; {
   try {
@@ -706,7 +731,6 @@ router.post('/login', async (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ message: 'שגיאת שרת בהתחברות אדמין', error: error.message });</span>
   }
 });
-&nbsp;
 // ==========================================
 // 3. ראוט למחיקת משתמש (מוגן - Admin בלבד)
 // DELETE /api/admin/users/:id
@@ -766,7 +790,7 @@ module.exports = router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-25T10:10:18.533Z
+                at 2026-08-25T12:31:25.886Z
             </div>
         <script src="../prettify.js"></script>
         <script>

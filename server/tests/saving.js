@@ -1,6 +1,8 @@
 
 
 
+
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('./models/user');
@@ -8,7 +10,6 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 const Story = require('./models/story'); // נתיב למודל הסיפורים
 const logger = require('./logger');
-const crypto = require('crypto');
 
 
 
@@ -94,7 +95,6 @@ const protect = async (req, res, next) => {
 // POST /api/admin/register
 // ==========================================
 // POST /api/admin/register
-// POST /api/admin/register
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -114,23 +114,16 @@ router.post('/register', async (req, res) => {
     await adminUser.save();
     logger.info(`נוצר אדמין חדש בהצלחה: ${email}`);
 
+    // הנפקת טוקן גם בראוט ההרשמה
     const token = generateToken(adminUser._id);
 
-    // מחזירים תשובה המשלבת את המבנה המקורי עבור הטסטים + השדות הנדרשים ל-Frontend
     res.status(201).json({
       message: 'משתמש אדמין נוצר בהצלחה',
       token,
       _id: adminUser._id,
       name: adminUser.name,
       email: adminUser.email,
-      role: adminUser.role,
-      user: {
-        id: adminUser._id,
-        _id: adminUser._id,
-        name: adminUser.name,
-        email: adminUser.email,
-        role: adminUser.role
-      }
+      role: adminUser.role
     });
   } catch (error) {
     logger.error(`שגיאה ביצירת אדמין: ${error.message}`);
