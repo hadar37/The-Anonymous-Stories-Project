@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Story = require('./models/story'); // ודאו שהנתיב תואם למבנה התיקיות
 const { protect } = require('./auth');
-
+const crypto = require('crypto');
 // ==========================================
 // 1. קבלת כל הסיפורים (פתוח לכולם)
 // ==========================================
