@@ -22,28 +22,49 @@ export default function PersonalArea() {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
 
-  // טעינת הסיפורים של המשתמש בעת עליות הרכיב
+  // טעינת הסיפורים רק כאשר ה-user מוגדר וזמין
   useEffect(() => {
-    fetchMyStories();
-  }, []);
+    if (user?.token) {
+      fetchMyStories();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
 
-  // שליפת הסיפורים וסינון של הסיפורים השייכים למשתמש המחובר בלבד
   const fetchMyStories = async () => {
+    if (!user?.token) return;
+
     try {
       setLoading(true);
+      setError('');
+      
       const res = await fetch('http://localhost:5000/api/stories', {
         headers: {
-          'Authorization': `Bearer ${user?.token}`
+          'Authorization': `Bearer ${user.token}`
         }
       });
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || 'שגיאה שטעינת הסיפורים');
+      if (!res.ok) throw new Error(data.message || 'שגיאה בטעינת הסיפורים');
 
-      // סינון הסיפורים שבהם ה-author תואם למשתמש הנוכחי
-      const myStories = data.filter(story => {
-        const authorId = typeof story.author === 'object' ? story.author._id : story.author;
-        return authorId === user?._id || authorId === user?.id;
+      // טיפול במקרה שהשרת מחזיר { stories: [...] } או array ישיר
+      const storiesArray = Array.isArray(data) ? data : (data.stories || []);
+
+      // מזהה המשתמש המחובר כמחרוזת
+      const currentUserId = String(user._id || user.id || '');
+
+      // סינון גמיש עבור מגוון מבני נתונים של author
+      const myStories = storiesArray.filter(story => {
+        if (!story.author) return false;
+        
+        let storyAuthorId = '';
+        if (typeof story.author === 'object') {
+          storyAuthorId = String(story.author._id || story.author.id || '');
+        } else {
+          storyAuthorId = String(story.author);
+        }
+
+        return storyAuthorId === currentUserId;
       });
 
       setUserStories(myStories);
@@ -76,7 +97,7 @@ export default function PersonalArea() {
           title,
           content,
           isSuccessStory,
-          storyID: Date.now().toString() // מזהה ייחודי קצר אם נדרש בשרת
+          storyID: Date.now().toString()
         })
       });
 
@@ -157,11 +178,9 @@ export default function PersonalArea() {
         <p>מקום בטוח לכתוב, לשתף ולעקוב אחר הסיפורים שלך</p>
       </header>
 
-      {/* הודעות שגיאה או הצלחה */}
       {error && <div style={styles.errorBanner}>{error}</div>}
       {successMsg && <div style={styles.successBanner}>{successMsg}</div>}
 
-      {/* חלק 1: טופס כתיבת סיפור חדש */}
       <section style={styles.sectionCard}>
         <h3>✍️ כתיבת סיפור חדש</h3>
         <form onSubmit={handleCreateStory} style={styles.form}>
@@ -200,7 +219,6 @@ export default function PersonalArea() {
         </form>
       </section>
 
-      {/* חלק 2: רשימת הסיפורים שלי */}
       <section style={styles.sectionCard}>
         <h3>📚 הסיפורים שלי ({userStories.length})</h3>
 
@@ -213,7 +231,6 @@ export default function PersonalArea() {
             {userStories.map((story) => (
               <div key={story._id} style={styles.storyCard}>
                 {editingStoryId === story._id ? (
-                  /* מצב עריכה בלייב */
                   <div style={styles.editForm}>
                     <input
                       type="text"
@@ -243,7 +260,6 @@ export default function PersonalArea() {
                     </div>
                   </div>
                 ) : (
-                  /* תצוגת סיפור רגילה */
                   <>
                     <div style={styles.storyHeader}>
                       <h4 style={styles.storyTitle}>{story.title}</h4>
@@ -285,7 +301,6 @@ export default function PersonalArea() {
   );
 }
 
-// עיצוב רך, נקי ומזמין
 const styles = {
   container: {
     maxWidth: '800px',
