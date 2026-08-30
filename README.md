@@ -4,7 +4,7 @@
 
 [![CI/CD Pipeline](https://github.com/hadar37/The-Anonymous-Stories-Project/actions/workflows/ci.yml/badge.svg)](https://github.com/hadar37/The-Anonymous-Stories-Project/actions/workflows/ci.yml)
 
-An anonymous story-sharing backend application built with **Node.js**, **Express**, and **MongoDB**. The system provides RESTful APIs for user authentication, anonymous story publishing, and an admin panel for platform moderation.
+An anonymous story-sharing backend application built with **Node.js**, **Express**, and **MongoDB Atlas**. The system provides RESTful APIs for user authentication, anonymous story publishing, and an admin panel for platform moderation, fully containerized using **Docker**.
 
 ---
 
@@ -12,8 +12,10 @@ An anonymous story-sharing backend application built with **Node.js**, **Express
 
 - **User Authentication:** Secure registration and login using JWT and bcrypt password hashing.
 - **Story Management:** Create, read, and interact with anonymous user-contributed stories.
-- **Admin Moderation:** Admin endpoints to manage users and delete offensive content.
-- **In-Memory Testing:** Automated test suite using an in-memory MongoDB server for maximum environment independence.
+- **Admin Moderation:** Admin endpoints to manage users and moderate content.
+- **Cloud Database Integration:** Connected seamlessly to MongoDB Atlas with robust authentication and connection pooling.
+- **Containerized Deployment:** Fully configured Docker environment for seamless deployment across environments.
+- **Automated Testing:** Automated test suite using Jest and Supertest.
 
 ---
 
@@ -21,26 +23,19 @@ An anonymous story-sharing backend application built with **Node.js**, **Express
 
 - **Runtime Environment:** Node.js
 - **Framework:** Express.js
-- **Database:** MongoDB (via Mongoose ORM)
-- **Authentication:** JSON Web Tokens (JWT)
+- **Database:** MongoDB Atlas (via Mongoose ORM)
+- **Authentication:** JSON Web Tokens (JWT) & Bcrypt
 - **Testing & Coverage:** Jest, Supertest, `mongodb-memory-server`
-- **Containerization / Ops:** Docker
+- **DevOps & Containerization:** Docker, Docker Compose
 
 ---
 
-## 📋 Prerequisites
+## ⚙️ Environment Variables
 
-Ensure you have the following installed on your machine:
+Create a `.env` file in the `server` directory with the following variables:
 
-- **Node.js** (v18.x or higher)
-- **npm** (v9.x or higher)
-- **MongoDB** (Local instance or MongoDB Atlas connection string)
-
----
-
-## ⚙️ Installation & Setup
-
-1. **Clone the Repository:**
-   ```bash
-   git clone [https://github.com/hadar37/The-Anonymous-Stories-Project.git](https://github.com/hadar37/The-Anonymous-Stories-Project.git)
-   cd The-Anonymous-Stories-Project/server
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.dooknhy.mongodb.net/myDatabase?retryWrites=true&w=majority
+JWT_SECRET=your_jwt_secret_key

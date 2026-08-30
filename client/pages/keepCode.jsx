@@ -1,90 +1,293 @@
 
 
 
+import { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
-import { useState, useEffect } from 'react';
+export default function PersonalArea() {
+  const { user } = useContext(AuthContext);
+  useEffect(() => {
+  if (user?.token) {
+    fetchMyStories();
+  }
+}, [user]);
 
-export default function HomePage({ setCurrentPage }) {
-  const [stories, setStories] = useState([]);
+  // מצבים לטופס יצירת סיפור חדש
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [isSuccessStory, setIsSuccessStory] = useState(false);
+
+  // מצבים לניהול סיפורים וטעינה
+  const [userStories, setUserStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
+  // מצב לעריכת סיפור קיים
+  const [editingStoryId, setEditingStoryId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+
+  // טעינת הסיפורים של המשתמש בעת עליות הרכיב
   useEffect(() => {
-    fetchStories();
+    fetchMyStories();
   }, []);
 
-  const fetchStories = async () => {
+ const fetchMyStories = async () => {
+  if (!user?.token) return;
+
+  try {
+    setLoading(true);
+    const res = await fetch('http://localhost:5000/api/stories', {
+      headers: {
+        'Authorization': `Bearer ${user.token}`
+      }
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || 'שגיאה שטעינת הסיפורים');
+
+    // מזהה המשתמש המחובר כמחרוזת
+    const currentUserId = String(user._id || user.id || '');
+
+    // סינון בטוח - המרת מזהה המחבר למחרוזת
+    const myStories = data.filter(story => {
+      const authorId = typeof story.author === 'object' 
+        ? (story.author._id || story.author.id) 
+        : story.author;
+        
+      return String(authorId) === currentUserId;
+    });
+
+    setUserStories(myStories);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+  // שליחת סיפור חדש
+  const handleCreateStory = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+
+    if (!title.trim() || !content.trim()) {
+      setError('נא למלא את הכותרת ותוכן הסיפור');
+      return;
+    }
+
     try {
-      setLoading(true);
-      const res = await fetch('http://localhost:5000/api/stories');
+      const res = await fetch('http://localhost:5000/api/stories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          isSuccessStory,
+          storyID: Date.now().toString() // מזהה ייחודי קצר אם נדרש בשרת
+        })
+      });
+
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'שגיאה ביצירת הסיפור');
 
-      if (!res.ok) throw new Error(data.message || 'שגיאה בטעינת הסיפורים');
+      setSuccessMsg('הסיפור שלך פורסם בהצלחה! ✨');
+      setTitle('');
+      setContent('');
+      setIsSuccessStory(false);
 
-      setStories(data);
+      // רענון רשימת הסיפורים
+      fetchMyStories();
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  // מחיקת סיפור
+  const handleDeleteStory = async (storyId) => {
+    if (!window.confirm('האם ברצונך למחוק סיפור זה?')) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/stories/${storyId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user?.token}`
+        }
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'שגיאה במחיקת הסיפור');
+
+      setUserStories(prev => prev.filter(story => story._id !== storyId));
+      setSuccessMsg('הסיפור נמחק בהצלחה');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // התחלת מצב עריכה
+  const startEditing = (story) => {
+    setEditingStoryId(story._id);
+    setEditTitle(story.title);
+    setEditContent(story.content || '');
+  };
+
+  // שמירת עריכת סיפור
+  const handleUpdateStory = async (storyId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/stories/${storyId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
+        body: JSON.stringify({
+          title: editTitle,
+          content: editContent
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'שגיאה בעדכון הסיפור');
+
+      setEditingStoryId(null);
+      setSuccessMsg('הסיפור עודכן בהצלחה');
+      fetchMyStories();
+    } catch (err) {
+      setError(err.message);
     }
   };
 
   return (
     <div style={styles.container}>
-      {/* באנר ראשי */}
-      <header style={styles.heroSection}>
-        <h1 style={styles.mainTitle}>המקום לסיפור שלך 🌱</h1>
-        <p style={styles.subtitle}>
-          פלטפורמה אנונימית ובטוחה לשיתוף סיפורים אישיים, חיזוק הדדי, ומציאת השראה מחוויות של אחרים.
-        </p>
-        <div style={styles.heroButtons}>
-          <button 
-            style={styles.primaryBtn} 
-            onClick={() => setCurrentPage('personal')}
-          >
-            ✍️ שתף/י את הסיפור שלך
-          </button>
-          <button 
-            style={styles.secondaryBtn} 
-            onClick={() => setCurrentPage('cards')}
-          >
-            🎴 קבל/י מסר מחזק
-          </button>
-        </div>
+      <header style={styles.header}>
+        <h2>🌱 האזור האישי שלך</h2>
+        <p>מקום בטוח לכתוב, לשתף ולעקוב אחר הסיפורים שלך</p>
       </header>
 
-      {/* הודעת שגיאה במידה ויש */}
+      {/* הודעות שגיאה או הצלחה */}
       {error && <div style={styles.errorBanner}>{error}</div>}
+      {successMsg && <div style={styles.successBanner}>{successMsg}</div>}
 
-      {/* רשימת הסיפורים מהקהילה */}
-      <section style={styles.feedSection}>
-        <h2 style={styles.sectionTitle}>💬 סיפורים מן הקהילה</h2>
+      {/* חלק 1: טופס כתיבת סיפור חדש */}
+      <section style={styles.sectionCard}>
+        <h3>✍️ כתיבת סיפור חדש</h3>
+        <form onSubmit={handleCreateStory} style={styles.form}>
+          <input
+            type="text"
+            placeholder="כותרת הסיפור..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={styles.input}
+            required
+          />
+
+          <textarea
+            placeholder="שתף/י את הסיפור שלך כגון: מה עבר עליך, מה עזר לך או משהו שתרצה/י לפרוק..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            style={styles.textarea}
+            rows={6}
+            required
+          />
+
+          <div style={styles.checkboxContainer}>
+            <label style={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={isSuccessStory}
+                onChange={(e) => setIsSuccessStory(e.target.checked)}
+              />
+              {' '}תייג כ"סיפור הצלחה" 🌟 (להעצמה והשראה של אחרים)
+            </label>
+          </div>
+
+          <button type="submit" style={styles.publishBtn}>
+            פרסם סיפור אנונימי 🚀
+          </button>
+        </form>
+      </section>
+
+      {/* חלק 2: רשימת הסיפורים שלי */}
+      <section style={styles.sectionCard}>
+        <h3>📚 הסיפורים שלי ({userStories.length})</h3>
 
         {loading ? (
-          <p style={styles.loadingText}>טוען סיפורים...</p>
-        ) : stories.length === 0 ? (
-          <p style={styles.emptyText}>עדיין אין סיפורים בקהילה. היו הראשונים לשתף!</p>
+          <p style={styles.infoText}>טוען סיפורים...</p>
+        ) : userStories.length === 0 ? (
+          <p style={styles.infoText}>עדיין לא פרסמת סיפורים. זה הזמן לכתוב את הסיפור הראשון שלך!</p>
         ) : (
-          <div style={styles.storiesGrid}>
-            {stories.map((story) => (
+          <div style={styles.storiesList}>
+            {userStories.map((story) => (
               <div key={story._id} style={styles.storyCard}>
-                <div style={styles.cardHeader}>
-                  <span style={styles.authorName}>
-                    👤 {story.author?.name || 'כותב/ת אנונימי/ת'}
-                  </span>
-                  {story.isSuccessStory && (
-                    <span style={styles.badge}>🌟 סיפור הצלחה</span>
-                  )}
-                </div>
+                {editingStoryId === story._id ? (
+                  /* מצב עריכה בלייב */
+                  <div style={styles.editForm}>
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      style={styles.input}
+                    />
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      style={styles.textarea}
+                      rows={4}
+                    />
+                    <div style={styles.cardActions}>
+                      <button 
+                        onClick={() => handleUpdateStory(story._id)} 
+                        style={styles.saveBtn}
+                      >
+                        שמור שינויים
+                      </button>
+                      <button 
+                        onClick={() => setEditingStoryId(null)} 
+                        style={styles.cancelBtn}
+                      >
+                        ביטול
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* תצוגת סיפור רגילה */
+                  <>
+                    <div style={styles.storyHeader}>
+                      <h4 style={styles.storyTitle}>{story.title}</h4>
+                      {story.isSuccessStory && (
+                        <span style={styles.badge}>🌟 סיפור הצלחה</span>
+                      )}
+                    </div>
 
-                <h3 style={styles.storyTitle}>{story.title}</h3>
-                <p style={styles.storyContent}>{story.content}</p>
+                    <p style={styles.storyContent}>{story.content}</p>
 
-                <div style={styles.cardFooter}>
-                  <span style={styles.dateText}>
-                    {new Date(story.createdAt || Date.now()).toLocaleDateString('he-IL')}
-                  </span>
-                </div>
+                    <div style={styles.storyFooter}>
+                      <span style={styles.dateText}>
+                        {new Date(story.createdAt || Date.now()).toLocaleDateString('he-IL')}
+                      </span>
+
+                      <div style={styles.cardActions}>
+                        <button 
+                          onClick={() => startEditing(story)} 
+                          style={styles.editBtn}
+                        >
+                          ✏️ ערוך
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteStory(story._id)} 
+                          style={styles.deleteBtn}
+                        >
+                          🗑️ מחק
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -94,135 +297,153 @@ export default function HomePage({ setCurrentPage }) {
   );
 }
 
+// עיצוב רך, נקי ומזמין
 const styles = {
   container: {
-    maxWidth: '900px',
+    maxWidth: '800px',
     margin: '0 auto',
     padding: '30px 20px',
     direction: 'rtl'
   },
-  heroSection: {
+  header: {
     textAlign: 'center',
-    background: 'linear-gradient(135deg, #fefae0 0%, #e9edc9 100%)',
-    padding: '40px 20px',
-    borderRadius: '20px',
-    marginBottom: '40px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
+    marginBottom: '30px',
+    color: '#2b2d42'
   },
-  mainTitle: {
-    fontSize: '36px',
-    color: '#2b2d42',
-    marginBottom: '15px',
-    fontWeight: '800'
+  sectionCard: {
+    background: '#ffffff',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.05)',
+    marginBottom: '30px'
   },
-  subtitle: {
-    fontSize: '18px',
-    color: '#555',
-    maxWidth: '600px',
-    margin: '0 auto 25px auto',
-    lineHeight: '1.6'
-  },
-  heroButtons: {
+  form: {
     display: 'flex',
-    justifyContent: 'center',
-    gap: '15px',
-    flexWrap: 'wrap'
+    flexDirection: 'column',
+    gap: '16px',
+    marginTop: '15px'
   },
-  primaryBtn: {
+  input: {
+    padding: '12px 16px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    fontSize: '15px',
+    outline: 'none'
+  },
+  textarea: {
+    padding: '12px 16px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    fontSize: '15px',
+    fontFamily: 'inherit',
+    resize: 'vertical',
+    outline: 'none'
+  },
+  checkboxContainer: {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  checkboxLabel: {
+    fontSize: '14px',
+    color: '#4a7c59',
+    cursor: 'pointer'
+  },
+  publishBtn: {
     background: '#6b8e23',
     color: '#fff',
     border: 'none',
-    padding: '12px 24px',
-    borderRadius: '25px',
+    padding: '14px',
+    borderRadius: '8px',
+    cursor: 'pointer',
     fontSize: '16px',
     fontWeight: 'bold',
-    cursor: 'pointer'
+    transition: 'background 0.2s'
   },
-  secondaryBtn: {
-    background: '#ffffff',
-    color: '#bc6c25',
-    border: '2px solid #dda15e',
-    padding: '12px 24px',
-    borderRadius: '25px',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    cursor: 'pointer'
-  },
-  feedSection: {
-    marginTop: '20px'
-  },
-  sectionTitle: {
-    fontSize: '22px',
-    color: '#1d3557',
-    marginBottom: '20px',
-    borderBottom: '2px solid #e9edc9',
-    paddingBottom: '10px'
-  },
-  storiesGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: '20px'
-  },
-  storyCard: {
-    background: '#ffffff',
-    borderRadius: '14px',
-    padding: '20px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-    border: '1px solid #f0f0f0',
+  storiesList: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between'
+    gap: '16px',
+    marginTop: '15px'
   },
-  cardHeader: {
+  storyCard: {
+    border: '1px solid #eee',
+    borderRadius: '12px',
+    padding: '20px',
+    backgroundColor: '#fafbfc'
+  },
+  storyHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '12px'
+    marginBottom: '10px'
   },
-  authorName: {
-    fontSize: '13px',
-    color: '#6c757d',
-    fontWeight: 'bold'
+  storyTitle: {
+    margin: 0,
+    fontSize: '18px',
+    color: '#1d3557'
   },
   badge: {
     background: '#fefae0',
     color: '#bc6c25',
     border: '1px solid #dda15e',
-    padding: '3px 8px',
-    borderRadius: '10px',
-    fontSize: '11px',
+    padding: '4px 10px',
+    borderRadius: '12px',
+    fontSize: '12px',
     fontWeight: 'bold'
-  },
-  storyTitle: {
-    fontSize: '18px',
-    color: '#2b2d42',
-    margin: '0 0 10px 0'
   },
   storyContent: {
     color: '#4a5568',
-    fontSize: '14px',
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
-    marginBottom: '15px'
+    margin: '10px 0'
   },
-  cardFooter: {
-    borderTop: '1px dashed #eee',
+  storyFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '15px',
     paddingTop: '10px',
-    textAlign: 'left'
+    borderTop: '1px dashed #e2e8f0'
   },
   dateText: {
     fontSize: '12px',
     color: '#a0aec0'
   },
-  loadingText: {
-    textAlign: 'center',
-    color: '#888',
-    padding: '30px'
+  cardActions: {
+    display: 'flex',
+    gap: '10px'
   },
-  emptyText: {
-    textAlign: 'center',
-    color: '#666',
-    padding: '30px'
+  editBtn: {
+    background: '#e2e8f0',
+    border: 'none',
+    padding: '6px 12px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '13px'
+  },
+  deleteBtn: {
+    background: '#fed7d7',
+    color: '#c53030',
+    border: 'none',
+    padding: '6px 12px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '13px'
+  },
+  saveBtn: {
+    background: '#319795',
+    color: '#fff',
+    border: 'none',
+    padding: '8px 14px',
+    borderRadius: '6px',
+    cursor: 'pointer'
+  },
+  cancelBtn: {
+    background: '#cbd5e0',
+    border: 'none',
+    padding: '8px 14px',
+    borderRadius: '6px',
+    cursor: 'pointer'
   },
   errorBanner: {
     background: '#fff5f5',
@@ -230,6 +451,24 @@ const styles = {
     padding: '12px',
     borderRadius: '8px',
     marginBottom: '20px',
-    textAlign: 'center'
+    border: '1px solid #feb2b2'
+  },
+  successBanner: {
+    background: '#f0fff4',
+    color: '#276749',
+    padding: '12px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    border: '1px solid #9ae6b4'
+  },
+  infoText: {
+    color: '#718096',
+    textAlign: 'center',
+    padding: '20px'
+  },
+  editForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
   }
 };
